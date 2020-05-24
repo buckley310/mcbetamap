@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>map</title>
+    <link rel="icon" href="favicon.ico">
+    <style>
+        #map_shell {
+            position: fixed;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+
+            background-color: #333333;
+        }
+
+        #map_view {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            cursor: move;
+        }
+
+        #map_origin {
+            position: relative;
+        }
+
+        #map_origin>img {
+            position: absolute;
+        }
+
+        #map_coords {
+            position: absolute;
+            bottom: 0;
+            background-color: white;
+            padding: 4px 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map_shell">
+        <div id="map_view">
+            <div id="map_loading">LOADING...</div>
+            <div id="map_origin"></div>
+        </div>
+        <div style="position:absolute">
+            <div style="display:inline-block;">
+                <button id="prevsign">&lt;</button>
+                <select id="map_signs">
+                    <option>Select a sign...</option>
+                </select>
+                <button id="nextsign">&gt;</button>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <div style="display:inline-block;">
+                <button id="prevbed">&lt;</button>
+                <select id="map_beds">
+                    <option>Select a bed...</option>
+                </select>
+                <button id="nextbed">&gt;</button>
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button id="gotospawn">Go to: 0,0</button>
+        </div>
+        <div id="map_coords"></div>
+    </div>
+    <script src="map.js"></script>
+</body>
+
+</html>
