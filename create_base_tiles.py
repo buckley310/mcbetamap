@@ -59,5 +59,5 @@ def worker(job):
 
 tileFiles = os.listdir(dir_in)
 with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
-    pool.map(worker, enumerate(tileFiles))
+    list(pool.map(worker, enumerate(tileFiles)))
 print('')
