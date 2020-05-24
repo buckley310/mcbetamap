@@ -24,24 +24,24 @@ def expandCoord(x):
 
 
 def worker(job):
-    print(f' progress {job[2]}/{job[3]}', ' '*8, end='\r')
+    tile, zoom, current, total = job
+    print(f' progress {current}/{total}', ' '*8, end='\r')
     dst = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
-    for srcX, srcY, dstX, dstY in expandCoord(job[0]):
-        try:
-            src = Image.open(f'./data/tiles_{job[1]//2}/r.{srcX}.{srcY}.png')
+    for srcX, srcY, dstX, dstY in expandCoord(tile):
+        if [srcX, srcY] in intTileList:
+            src = Image.open(f'./data/tiles_{zoom//2}/r.{srcX}.{srcY}.png')
             dst.paste(src.resize((256, 256)), (dstX, dstY))
-        except FileNotFoundError:
-            pass
 
-    dst.save(f'./data/tiles_{job[1]}/r.{job[0][0]}.{job[0][1]}.png', 'png')
+    dst.save(f'./data/tiles_{zoom}/r.{tile[0]}.{tile[1]}.png', 'png')
 
 
 with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
     for zoom in [2]:
         print('\nProcessing Zoom Level', zoom)
 
+        intTileList = json.loads(f.read())
         with open(f'./data/tiles_{zoom//2}.json') as f:
-            outTileList = list(set(map(squashCoord, json.loads(f.read()))))
+            outTileList = list(set(map(squashCoord, intTileList)))
 
         try:
             os.mkdir(f'./data/tiles_{zoom}')
