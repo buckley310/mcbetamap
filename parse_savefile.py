@@ -8,20 +8,6 @@ import struct
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
 
-NbtTypeNames = ['TAG_End',
-                'TAG_Byte',
-                'TAG_Short',
-                'TAG_Int',
-                'TAG_Long',
-                'TAG_Float',
-                'TAG_Double',
-                'TAG_Byte_Array',
-                'TAG_String',
-                'TAG_List',
-                'TAG_Compound',
-                'TAG_Int_Array',
-                'TAG_Long_Array', ]
-
 TAG_End = 0
 TAG_Byte = 1
 TAG_Short = 2
