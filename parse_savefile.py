@@ -250,9 +250,9 @@ def tilesFromWorld(world_path):
         # output file
         map(lambda x: f'./data/raw_tiles/r.{x[0]}.{x[1]}.dat', regions),
         # total count
-        (len(regions) for _ in range(len(regions))),
+        (len(regions),) * len(regions),
         # current item
-        (x for x in range(len(regions))),
+        range(len(regions)),
         # region list
         regions,
     ))
