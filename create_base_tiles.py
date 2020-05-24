@@ -6,7 +6,6 @@ from multiprocessing import cpu_count
 
 dir_in = './data/raw_tile_data'
 dir_out = './data/tiles_1'
-tileSize = 512  # regions are 512x512
 
 colors = {
     1: (200, 200, 200, 255),
@@ -44,7 +43,7 @@ def worker(job):
     filenum, fname = job
     print(' progress:', filenum, 'of', len(tileFiles), end='    \r')
 
-    img = Image.new('RGBA', (tileSize, tileSize), (0, 0, 0, 0))
+    img = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
     pixels = img.load()
     with open(dir_in+'/'+fname, 'rb') as f:
         for i, b in enumerate(f.read()):
@@ -54,7 +53,7 @@ def worker(job):
                 else:
                     print('no color for block:', b, ' '*8)
                     color = (255, 0, 127, 255)
-                pixels[i % tileSize, i//tileSize] = color
+                pixels[i % 512, i//512] = color
     img.save(dir_out+'/'+fname.replace('.dat', '.png'), "png")
 
 
