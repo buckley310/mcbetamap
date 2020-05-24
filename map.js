@@ -22,10 +22,10 @@ let flyInterval;
 function render() {
     document.getElementById('map_coords').textContent = `${parseInt(viewX)}, ${parseInt(viewY)}`;
 
-    let viewLeft = viewX - (map_view.clientWidth / 2) * viewZoom;
-    let viewRight = viewX + (map_view.clientWidth / 2) * viewZoom;
-    let viewTop = viewY - (map_view.clientHeight / 2) * viewZoom;
-    let viewBottom = viewY + (map_view.clientHeight / 2) * viewZoom;
+    let viewLeft = viewX / viewZoom - map_view.clientWidth / 2;
+    let viewRight = viewX / viewZoom + map_view.clientWidth / 2;
+    let viewTop = viewY / viewZoom - map_view.clientHeight / 2;
+    let viewBottom = viewY / viewZoom + map_view.clientHeight / 2;
 
     map_origin.style.left = map_view.clientWidth / 2 - viewX / viewZoom + 'px';
     map_origin.style.top = map_view.clientHeight / 2 - viewY / viewZoom + 'px';
@@ -35,8 +35,8 @@ function render() {
         for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
             if (tiles[x + ' ' + y + ' ' + viewZoom] && !document.getElementById(`map_tile,${x},${y},${viewZoom}`)) {
                 let im = document.createElement('img');
-                im.style.left = (x * 512) + 'px';
-                im.style.top = (y * 512) + 'px';
+                im.style.left = x * 512 + 'px';
+                im.style.top = y * 512 + 'px';
                 im.src = `./data/tiles_${viewZoom}/r.${x}.${y}.png`;
                 im.id = `map_tile,${x},${y},${viewZoom}`;
                 im.className = "map_tile";
