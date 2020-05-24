@@ -189,7 +189,7 @@ function init() {
 
 addEventListener('load', function () {
     Promise.all([
-        fetch('./data/raw_tiles.json'),
+        fetch('./data/tiles_1.json'),
         fetch('./data/signs.json'),
         fetch('./data/beds.json'),
     ])

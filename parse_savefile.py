@@ -227,7 +227,7 @@ def fileWorker(job):
 def tilesFromWorld(world_path):
     # accepts path to world folder
     # spawns file workers
-    # outputs raw_tiles.json, signs.json, beds.json
+    # outputs tiles_1.json, signs.json, beds.json
     # returns nothing
 
     try:
@@ -235,7 +235,7 @@ def tilesFromWorld(world_path):
     except FileExistsError:
         pass
     try:
-        os.mkdir('./data/raw_tiles')
+        os.mkdir('./data/raw_tile_data')
     except FileExistsError:
         pass
 
@@ -248,7 +248,7 @@ def tilesFromWorld(world_path):
         # input file
         map(lambda x: f'{world_path}/region/r.{x[0]}.{x[1]}.mcr', regions),
         # output file
-        map(lambda x: f'./data/raw_tiles/r.{x[0]}.{x[1]}.dat', regions),
+        map(lambda x: f'./data/raw_tile_data/r.{x[0]}.{x[1]}.dat', regions),
         # total count
         (len(regions),) * len(regions),
         # current item
@@ -263,7 +263,7 @@ def tilesFromWorld(world_path):
 
     bed_list, sign_list = map(lambda x: sum(x, []), zip(*job_results))
 
-    with open('./data/raw_tiles.json', 'w') as f:
+    with open('./data/tiles_1.json', 'w') as f:
         f.write(json.dumps(regions))
 
     with open('./data/signs.json', 'w') as f:
