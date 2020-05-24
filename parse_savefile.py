@@ -152,9 +152,13 @@ def fileWorker(job):
             _, level, _ = parse_nbt(chunk['raw'], 0)
             level = level['Level']
 
+            # If this region file is storing chunks from
+            # outside of its region, we've got problems!
             assert level['xPos'] // 32 == regX
             assert level['zPos'] // 32 == regZ
 
+            # Signs are stored in level['TileEntities'].
+            # Their rotation is stored somewhere else, but I don't need that.
             for s in level['TileEntities']:
                 if s['id'] == 'Sign':
                     sign = {
@@ -172,14 +176,16 @@ def fileWorker(job):
                         print('sign:', sign)
                         sign_list.append(sign)
 
+            # beds are regular blocks (ID 0x1A), and their
+            # rotation and head/foot info stored in level['Data'].
             if b'\x1a' in level['Blocks']:
                 chunk_beds = [
                     {
                         'x': level['xPos']*16 + i//2048,
                         'z': level['zPos']*16 + i//128 % 16,
                         'time': chunk['time'],
-                        # head or foot of bed:
-                        'end':(level['Data'][i >> 1] >> (i % 2 * 4)) & 8,
+                        # head (8) or foot (0) of bed:
+                        'end': (level['Data'][i >> 1] >> (i % 2 * 4)) & 8,
                         # Bed orientation:
                         # 'rotate':
                         #   (level['Data'][i >> 1] >> (i % 2 * 4)) & 3,
@@ -187,6 +193,7 @@ def fileWorker(job):
                     for i, b in enumerate(level['Blocks'])
                     if b == 0x1a
                 ]
+
                 for bed in chunk_beds:
                     if bed['end']:  # only count head of beds
                         del bed['end']
@@ -196,10 +203,14 @@ def fileWorker(job):
             surface = []
             for z in range(16):
                 for x in range(16):
-                    # HeightMap saves the highest solid block
+                    # HeightMap saves the highest block the sun reaches
                     y = 128*z + 2048*x + level['HeightMap'][z*16+x] - 1
+
+                    # snow does not block light, so HeightMap ignores it.
+                    # check if block above is snow and use that instead.
                     if y & 0xff < 255 and level['Blocks'][y+1] == 78:
-                        y += 1  # if block above is snow, use that instead
+                        y += 1
+
                     surface.append(level['Blocks'][y])
 
             for y in range(16):
@@ -248,9 +259,9 @@ def tilesFromWorld(world_path):
 
     with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         job_results = pool.map(fileWorker, job_list)
+    print('')
 
     bed_list, sign_list = map(lambda x: sum(x, []), zip(*job_results))
-    print('')
 
     with open('./data/raw_tiles.json', 'w') as f:
         f.write(json.dumps(regions))
