@@ -2,6 +2,7 @@
 
 let viewX = 0;
 let viewY = 0;
+let viewZoom = 1;
 
 let tiles;
 let signs;
@@ -20,26 +21,24 @@ let flyInterval;
 
 function render() {
     document.getElementById('map_coords').textContent = `${parseInt(viewX)}, ${parseInt(viewY)}`;
-    let viewW = map_view.clientWidth;
-    let viewH = map_view.clientHeight;
 
-    let viewLeft = viewX - (viewW / 2);
-    let viewRight = viewX + (viewW / 2);
-    let viewTop = viewY - (viewH / 2);
-    let viewBottom = viewY + (viewH / 2);
+    let viewLeft = viewX - (map_view.clientWidth / 2) * viewZoom;
+    let viewRight = viewX + (map_view.clientWidth / 2) * viewZoom;
+    let viewTop = viewY - (map_view.clientHeight / 2) * viewZoom;
+    let viewBottom = viewY + (map_view.clientHeight / 2) * viewZoom;
 
-    map_origin.style.left = viewW / 2 - viewX + 'px';
-    map_origin.style.top = viewH / 2 - viewY + 'px';
+    map_origin.style.left = map_view.clientWidth / 2 - viewX / viewZoom + 'px';
+    map_origin.style.top = map_view.clientHeight / 2 - viewY / viewZoom + 'px';
 
     // add tiles that should be on-screen, if they dont already exist
     for (let x = Math.floor(viewLeft / 512); x <= Math.floor(viewRight / 512); x++) {
         for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
-            if (tiles[x + ' ' + y] && !document.getElementById(`map_tile,${x},${y}`)) {
+            if (tiles[x + ' ' + y] && !document.getElementById(`map_tile,${x},${y},${viewZoom}`)) {
                 let im = document.createElement('img');
                 im.style.left = (x * 512) + 'px';
                 im.style.top = (y * 512) + 'px';
-                im.src = `./data/png_tiles/r.${x}.${y}.png`;
-                im.id = `map_tile,${x},${y}`;
+                im.src = `./data/tiles_${viewZoom}/r.${x}.${y}.png`;
+                im.id = `map_tile,${x},${y},${viewZoom}`;
                 im.className = "map_tile";
                 map_origin.appendChild(im);
             }
@@ -51,11 +50,13 @@ function render() {
         let tid = tile.id.split(',');
         let x = parseInt(tid[1]);
         let y = parseInt(tid[2]);
+        let zoom = parseInt(tid[3]);
 
         if (x < Math.floor(viewLeft / 512) ||
             x > Math.floor(viewRight / 512) ||
             y < Math.floor(viewTop / 512) ||
-            y > Math.floor(viewBottom / 512)
+            y > Math.floor(viewBottom / 512) ||
+            zoom != viewZoom
         ) {
             tile.outerHTML = '';
         }
@@ -116,8 +117,8 @@ function init() {
 
     addEventListener('mousemove', e => {
         if (dragActive) {
-            viewX = dragViewStartX + (dragMouseStartX - e.clientX);
-            viewY = dragViewStartY + (dragMouseStartY - e.clientY);
+            viewX = dragViewStartX + (dragMouseStartX - e.clientX) * viewZoom;
+            viewY = dragViewStartY + (dragMouseStartY - e.clientY) * viewZoom;
             render();
         }
     });

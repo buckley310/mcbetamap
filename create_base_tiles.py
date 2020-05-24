@@ -5,7 +5,7 @@ from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
 
 dir_in = './data/raw_tile_data'
-dir_out = './data/png_tiles'
+dir_out = './data/tiles_1'
 tileSize = 512  # regions are 512x512
 
 colors = {
