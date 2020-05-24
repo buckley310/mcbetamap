@@ -39,9 +39,9 @@ with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
     for zoom in [2]:
         print('\nProcessing Zoom Level', zoom)
 
-        intTileList = json.loads(f.read())
         with open(f'./data/tiles_{zoom//2}.json') as f:
-            outTileList = list(set(map(squashCoord, intTileList)))
+            intTileList = json.loads(f.read())
+        outTileList = list(set(map(squashCoord, intTileList)))
 
         try:
             os.mkdir(f'./data/tiles_{zoom}')
