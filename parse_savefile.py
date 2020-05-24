@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import zlib
 import time
 import json
@@ -263,4 +264,7 @@ def tilesFromWorld(world_path):
 
 
 if __name__ == "__main__":
-    tilesFromWorld('./data/savegame')
+    if len(sys.argv) == 2:
+        tilesFromWorld(sys.argv[1])
+    else:
+        print("Please specify a world directory.")
