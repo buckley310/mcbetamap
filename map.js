@@ -33,7 +33,7 @@ function render() {
     // add tiles that should be on-screen, if they dont already exist
     for (let x = Math.floor(viewLeft / 512); x <= Math.floor(viewRight / 512); x++) {
         for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
-            if (tiles[x + ' ' + y] && !document.getElementById(`map_tile,${x},${y},${viewZoom}`)) {
+            if (tiles[x + ' ' + y + ' ' + viewZoom] && !document.getElementById(`map_tile,${x},${y},${viewZoom}`)) {
                 let im = document.createElement('img');
                 im.style.left = (x * 512) + 'px';
                 im.style.top = (y * 512) + 'px';
@@ -190,16 +190,19 @@ function init() {
 
 addEventListener('load', function () {
     Promise.all([
-        fetch('./data/tiles_1.json'),
         fetch('./data/signs.json'),
         fetch('./data/beds.json'),
+        fetch('./data/tiles_1.json'),
+        fetch('./data/tiles_2.json'),
     ])
         .then(x => Promise.all(x.map(r => r.json())))
         .then(j => {
+            signs = j[0];
+            beds = j[1];
             tiles = {};
-            j[0].map(x => { tiles[x[0] + ' ' + x[1]] = true; });
-            signs = j[1];
-            beds = j[2];
+            for (let zoom = 1; zoom <= 2; zoom++) {
+                j[zoom + 1].map(x => { tiles[x[0] + ' ' + x[1] + ' ' + (1 << (zoom - 1))] = true; });
+            }
             init();
         });
 });
