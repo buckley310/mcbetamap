@@ -220,6 +220,10 @@ def tilesFromWorld(world_path):
     # returns nothing
 
     try:
+        os.mkdir('./data')
+    except FileExistsError:
+        pass
+    try:
         os.mkdir('./data/raw_tiles')
     except FileExistsError:
         pass
