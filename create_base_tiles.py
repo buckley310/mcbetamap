@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 import os
+import json
 from PIL import Image
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
-
-dir_in = './data/raw_tile_data'
-dir_out = './data/tiles_1'
 
 colors = {
     1: (200, 200, 200, 255),
@@ -33,19 +31,14 @@ colors = {
     86: (255, 144, 0, 255),
 }
 
-try:
-    os.mkdir(dir_out)
-except FileExistsError:
-    pass
-
 
 def worker(job):
-    filenum, fname = job
-    print(' progress:', filenum, 'of', len(tileFiles), end='    \r')
+    print(f' progress {job[1]}/{job[2]}', ' '*8, end='\r')
+    tile = job[0]
 
     img = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
     pixels = img.load()
-    with open(dir_in+'/'+fname, 'rb') as f:
+    with open(f'./data/raw_tile_data/r.{tile[0]}.{tile[1]}.dat', 'rb') as f:
         for i, b in enumerate(f.read()):
             if b:
                 if b in colors:
@@ -54,10 +47,27 @@ def worker(job):
                     print('no color for block:', b, ' '*8)
                     color = (255, 0, 127, 255)
                 pixels[i % 512, i//512] = color
-    img.save(dir_out+'/'+fname.replace('.dat', '.png'), "png")
+    img.save(f'./data/tiles_1/r.{tile[0]}.{tile[1]}.png', "png")
 
 
-tileFiles = os.listdir(dir_in)
+try:
+    os.mkdir('./data/tiles_1')
+except FileExistsError:
+    pass
+
+with open('./data/tiles_1.json') as f:
+    tiles = json.loads(f.read())
+
+jobs = list(zip(
+    # tile coords
+    tiles,
+    # current item
+    range(len(tiles)),
+    # total items
+    (len(tiles),) * len(tiles),
+))
+
 with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
-    list(pool.map(worker, enumerate(tileFiles)))
+    list(pool.map(worker, jobs))
+
 print('')
