@@ -131,8 +131,7 @@ def parse_nbt(raw, ofs, overrideMeta=None):
         ofs += 1
 
     else:
-        print("\n!!! unknown NBT ID", typeID)
-        assert False
+        raise Exception("Unknown NBT Tag (%i)!" % typeID)
 
     return name, ndata, ofs
 
