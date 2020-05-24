@@ -230,14 +230,11 @@ def tilesFromWorld(world_path):
     # outputs tiles_1.json, signs.json, beds.json
     # returns nothing
 
-    try:
-        os.mkdir('./data')
-    except FileExistsError:
-        pass
-    try:
-        os.mkdir('./data/raw_tile_data')
-    except FileExistsError:
-        pass
+    for p in ['./data', './data/raw_tile_data']:
+        try:
+            os.mkdir(p)
+        except FileExistsError:
+            pass
 
     regions = [
         list(map(int, x.split('.')[1:3]))
