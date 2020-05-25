@@ -30,12 +30,13 @@ def worker(job):
     for srcX, srcY, dstX, dstY in expandCoord(tile):
         if [srcX, srcY] in intTileList:
             src = Image.open(f'./data/tiles_{zoom//2}/r.{srcX}.{srcY}.png')
-            dst.paste(src.resize((256, 256)), (dstX, dstY))
+            src = src.resize((256, 256), resample=Image.NEAREST)
+            dst.paste(src, (dstX, dstY))
 
     dst.save(f'./data/tiles_{zoom}/r.{tile[0]}.{tile[1]}.png', 'png')
 
 
-for zoom in [2, 4, 8, 16, 32, 64, 128, 256, 512]:
+for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
     with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         print('\nProcessing Zoom Level', zoom)
 

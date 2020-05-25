@@ -3,7 +3,7 @@
 let viewX = 0;
 let viewY = 0;
 let viewZoom = 1;
-let maxZoom = 512;
+let maxZoom = 256;
 
 let tiles;
 let signs;
@@ -220,14 +220,13 @@ addEventListener('load', function () {
         fetch('./data/tiles_64.json'),
         fetch('./data/tiles_128.json'),
         fetch('./data/tiles_256.json'),
-        fetch('./data/tiles_512.json'),
     ])
         .then(x => Promise.all(x.map(r => r.json())))
         .then(j => {
             signs = j[0];
             beds = j[1];
             tiles = {};
-            for (let zoom = 0; zoom <= 9; zoom++) {
+            for (let zoom = 0; zoom <= 8; zoom++) {
                 j[zoom + 2].map(x => { tiles[x[0] + ' ' + x[1] + ' ' + (1 << zoom)] = true; });
             }
             init();
