@@ -35,8 +35,8 @@ def worker(job):
     dst.save(f'./data/tiles_{zoom}/r.{tile[0]}.{tile[1]}.png', 'png')
 
 
-with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
-    for zoom in [2]:
+for zoom in [2, 4, 8, 16, 32, 64, 128, 256, 512]:
+    with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         print('\nProcessing Zoom Level', zoom)
 
         with open(f'./data/tiles_{zoom//2}.json') as f:

@@ -194,14 +194,22 @@ addEventListener('load', function () {
         fetch('./data/beds.json'),
         fetch('./data/tiles_1.json'),
         fetch('./data/tiles_2.json'),
+        fetch('./data/tiles_4.json'),
+        fetch('./data/tiles_8.json'),
+        fetch('./data/tiles_16.json'),
+        fetch('./data/tiles_32.json'),
+        fetch('./data/tiles_64.json'),
+        fetch('./data/tiles_128.json'),
+        fetch('./data/tiles_256.json'),
+        fetch('./data/tiles_512.json'),
     ])
         .then(x => Promise.all(x.map(r => r.json())))
         .then(j => {
             signs = j[0];
             beds = j[1];
             tiles = {};
-            for (let zoom = 1; zoom <= 2; zoom++) {
-                j[zoom + 1].map(x => { tiles[x[0] + ' ' + x[1] + ' ' + (1 << (zoom - 1))] = true; });
+            for (let zoom = 0; zoom <= 9; zoom++) {
+                j[zoom + 2].map(x => { tiles[x[0] + ' ' + x[1] + ' ' + (1 << zoom)] = true; });
             }
             init();
         });
