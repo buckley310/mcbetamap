@@ -2,8 +2,8 @@
 
 let viewX = 0;
 let viewY = 0;
-let viewZoom = 1;
-let maxZoom = 256;
+let viewZoomOut = 1;
+let viewZoomIn = 1;
 
 let tiles;
 let signs;
@@ -22,24 +22,26 @@ let flyInterval;
 
 function render() {
     document.getElementById('map_coords').textContent = `${parseInt(viewX)}, ${parseInt(viewY)}`;
+    document.getElementById('zoom_value').textContent = `${viewZoomOut / viewZoomIn}x view`;
 
-    let viewLeft = viewX / viewZoom - map_view.clientWidth / 2;
-    let viewRight = viewX / viewZoom + map_view.clientWidth / 2;
-    let viewTop = viewY / viewZoom - map_view.clientHeight / 2;
-    let viewBottom = viewY / viewZoom + map_view.clientHeight / 2;
+    map_origin.style.left = map_view.clientWidth / 2 - viewX * viewZoomIn / viewZoomOut + 'px';
+    map_origin.style.top = map_view.clientHeight / 2 - viewY * viewZoomIn / viewZoomOut + 'px';
+    map_origin.style.transform = `scale(${viewZoomIn})`;
 
-    map_origin.style.left = map_view.clientWidth / 2 - viewX / viewZoom + 'px';
-    map_origin.style.top = map_view.clientHeight / 2 - viewY / viewZoom + 'px';
+    let viewLeft = viewX / viewZoomOut - map_view.clientWidth / 2 / viewZoomIn;
+    let viewRight = viewX / viewZoomOut + map_view.clientWidth / 2 / viewZoomIn;
+    let viewTop = viewY / viewZoomOut - map_view.clientHeight / 2 / viewZoomIn;
+    let viewBottom = viewY / viewZoomOut + map_view.clientHeight / 2 / viewZoomIn;
 
     // add tiles that should be on-screen, if they dont already exist
     for (let x = Math.floor(viewLeft / 512); x <= Math.floor(viewRight / 512); x++) {
         for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
-            if (tiles[x + ' ' + y + ' ' + viewZoom] && !document.getElementById(`map_tile,${x},${y},${viewZoom}`)) {
+            if (tiles[x + ' ' + y + ' ' + viewZoomOut] && !document.getElementById(`map_tile,${x},${y},${viewZoomOut}`)) {
                 let im = document.createElement('img');
                 im.style.left = x * 512 + 'px';
                 im.style.top = y * 512 + 'px';
-                im.src = `./data/tiles_${viewZoom}/r.${x}.${y}.png`;
-                im.id = `map_tile,${x},${y},${viewZoom}`;
+                im.src = `./data/tiles_${viewZoomOut}/r.${x}.${y}.png`;
+                im.id = `map_tile,${x},${y},${viewZoomOut}`;
                 im.className = "map_tile";
                 map_origin.appendChild(im);
             }
@@ -58,7 +60,7 @@ function render() {
             x > Math.floor(viewRight / 512) ||
             y < Math.floor(viewTop / 512) ||
             y > Math.floor(viewBottom / 512) ||
-            zoom != viewZoom
+            zoom != viewZoomOut
         ) {
             removeTiles.push(tile);
         }
@@ -71,7 +73,7 @@ function fly_to(dstX, dstY) {
 
     if (flyInterval) clearInterval(flyInterval);
 
-    if (Math.abs(dstX - viewX) > 10000 * viewZoom || Math.abs(dstY - viewY) > 10000 * viewZoom) {
+    if (Math.abs(dstX - viewX) > 10000 * viewZoomOut || Math.abs(dstY - viewY) > 10000 * viewZoomOut) {
         // flying really far might download a lot of tiles. just teleport.
         viewX = dstX;
         viewY = dstY;
@@ -120,8 +122,8 @@ function init() {
 
     addEventListener('mousemove', e => {
         if (dragActive) {
-            viewX = dragViewStartX + (dragMouseStartX - e.clientX) * viewZoom;
-            viewY = dragViewStartY + (dragMouseStartY - e.clientY) * viewZoom;
+            viewX = dragViewStartX + (dragMouseStartX - e.clientX) * viewZoomOut / viewZoomIn;
+            viewY = dragViewStartY + (dragMouseStartY - e.clientY) * viewZoomOut / viewZoomIn;
             render();
         }
     });
@@ -192,13 +194,21 @@ function init() {
 
     { // handle zoom buttons
         let zoomIn = () => {
-            if (viewZoom > 1) viewZoom >>= 1;
-            document.getElementById('zoom_value').textContent = `${viewZoom}x zoom`;
+            if (viewZoomOut > 1) {
+                viewZoomOut >>= 1;
+            }
+            else if (viewZoomIn < 32) {
+                viewZoomIn <<= 1;
+            }
             render();
         };
         let zoomOut = () => {
-            if (viewZoom < maxZoom) viewZoom <<= 1;
-            document.getElementById('zoom_value').textContent = `${viewZoom}x zoom`;
+            if (viewZoomIn > 1) {
+                viewZoomIn >>= 1;
+            }
+            else if (viewZoomOut < 256) {
+                viewZoomOut <<= 1;
+            }
             render();
         };
         document.getElementById('zoom_in').addEventListener('click', zoomIn);

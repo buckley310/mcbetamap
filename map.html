@@ -30,6 +30,8 @@
 
         #map_origin>img {
             position: absolute;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
         }
 
         #map_coords {
@@ -84,7 +86,7 @@
         <div id="map_coords"></div>
         <div id="map_zoom">
             <button id="zoom_out">-</button>
-            <span id="zoom_value">1x zoom</span>
+            <span id="zoom_value"></span>
             <button id="zoom_in">+</button>
         </div>
     </div>
