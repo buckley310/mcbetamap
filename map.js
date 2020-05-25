@@ -191,16 +191,19 @@ function init() {
     }
 
     { // handle zoom buttons
-        document.getElementById('zoom_in').addEventListener('click', () => {
+        let zoomIn = () => {
             if (viewZoom > 1) viewZoom >>= 1;
             document.getElementById('zoom_value').textContent = `${viewZoom}x zoom`;
             render();
-        });
-        document.getElementById('zoom_out').addEventListener('click', () => {
+        };
+        let zoomOut = () => {
             if (viewZoom < maxZoom) viewZoom <<= 1;
             document.getElementById('zoom_value').textContent = `${viewZoom}x zoom`;
             render();
-        });
+        };
+        document.getElementById('zoom_in').addEventListener('click', zoomIn);
+        document.getElementById('zoom_out').addEventListener('click', zoomOut);
+        addEventListener('wheel', e => (e.deltaY < 0 ? zoomIn : zoomOut)());
     }
 }
 
