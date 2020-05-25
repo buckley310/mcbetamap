@@ -22,7 +22,7 @@ let flyInterval;
 
 function render() {
     document.getElementById('map_coords').textContent = `${parseInt(viewX)}, ${parseInt(viewY)}`;
-    document.getElementById('zoom_value').textContent = `${viewZoomOut / viewZoomIn}x view`;
+    document.getElementById('zoom_value').textContent = `${viewZoomIn / viewZoomOut}x zoom`;
 
     map_origin.style.left = map_view.clientWidth / 2 - viewX * viewZoomIn / viewZoomOut + 'px';
     map_origin.style.top = map_view.clientHeight / 2 - viewY * viewZoomIn / viewZoomOut + 'px';
