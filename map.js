@@ -3,6 +3,7 @@
 let viewX = 0;
 let viewY = 0;
 let viewZoom = 1;
+let maxZoom = 512;
 
 let tiles;
 let signs;
@@ -46,6 +47,7 @@ function render() {
     }
 
     // remove tiles that are off-screen
+    let removeTiles = [];
     for (let tile of document.getElementsByClassName('map_tile')) {
         let tid = tile.id.split(',');
         let x = parseInt(tid[1]);
@@ -58,9 +60,10 @@ function render() {
             y > Math.floor(viewBottom / 512) ||
             zoom != viewZoom
         ) {
-            tile.outerHTML = '';
+            removeTiles.push(tile);
         }
     }
+    for (let tile of removeTiles) tile.outerHTML = '';
 }
 
 function fly_to(dstX, dstY) {
@@ -68,7 +71,7 @@ function fly_to(dstX, dstY) {
 
     if (flyInterval) clearInterval(flyInterval);
 
-    if (Math.abs(dstX - viewX) > 10000 || Math.abs(dstY - viewY) > 10000) {
+    if (Math.abs(dstX - viewX) > 10000 * viewZoom || Math.abs(dstY - viewY) > 10000 * viewZoom) {
         // flying really far might download a lot of tiles. just teleport.
         viewX = dstX;
         viewY = dstY;
@@ -184,6 +187,19 @@ function init() {
                 sel.selectedIndex++;
                 sel.dispatchEvent(new Event('change'));
             }
+        });
+    }
+
+    { // handle zoom buttons
+        document.getElementById('zoom_in').addEventListener('click', () => {
+            if (viewZoom > 1) viewZoom >>= 1;
+            document.getElementById('zoom_value').textContent = `${viewZoom}x zoom`;
+            render();
+        });
+        document.getElementById('zoom_out').addEventListener('click', () => {
+            if (viewZoom < maxZoom) viewZoom <<= 1;
+            document.getElementById('zoom_value').textContent = `${viewZoom}x zoom`;
+            render();
         });
     }
 }

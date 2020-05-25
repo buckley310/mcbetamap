@@ -38,6 +38,21 @@
             background-color: white;
             padding: 4px 8px;
         }
+
+        #map_zoom {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            padding: 4px 8px;
+        }
+
+        #map_zoom>span {
+            background-color: white;
+        }
+
+        #map_zoom>* {
+            padding: 5px 20px;
+        }
     </style>
 </head>
 
@@ -67,6 +82,11 @@
             <button id="gotospawn">Go to: 0,0</button>
         </div>
         <div id="map_coords"></div>
+        <div id="map_zoom">
+            <button id="zoom_out">-</button>
+            <span id="zoom_value">1x zoom</span>
+            <button id="zoom_in">+</button>
+        </div>
     </div>
     <script src="map.js"></script>
 </body>
