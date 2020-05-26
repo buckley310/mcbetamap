@@ -33,8 +33,6 @@ function render() {
         for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
             if (tiles[x + ' ' + y + ' ' + viewZoomOut] && !document.getElementById(`map_tile,${x},${y},${viewZoomOut}`)) {
                 let im = document.createElement('img');
-                im.style.left = x * 512 + 'px';
-                im.style.top = y * 512 + 'px';
                 im.src = `./data/tiles_${viewZoomOut}/r.${x}.${y}.png`;
                 im.id = `map_tile,${x},${y},${viewZoomOut}`;
                 im.className = "map_tile";
