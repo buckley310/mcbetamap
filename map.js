@@ -110,7 +110,7 @@ function fly_to(dstX, dstY) {
             viewY = dstY;
             render();
         } else {
-            let animProgress = 1 - Math.pow(1 - (now - flyStartTime) / animTime, 5);
+            let animProgress = 1 - Math.pow(1 - (now - flyStartTime) / animTime, 3);
             viewX = flyStartX + animProgress * (dstX - flyStartX);
             viewY = flyStartY + animProgress * (dstY - flyStartY);
             render();
