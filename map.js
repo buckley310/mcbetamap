@@ -19,18 +19,36 @@ let dragViewStartY = 0;
 
 let flyInterval;
 
+function findTilesInsideViewport() {
+    let viewTop = viewY / viewZoomOut - map_view.clientHeight / 2 / viewZoomIn;
+    let viewLeft = viewX / viewZoomOut - map_view.clientWidth / 2 / viewZoomIn;
+    let viewRight = viewX / viewZoomOut + map_view.clientWidth / 2 / viewZoomIn;
+    let viewBottom = viewY / viewZoomOut + map_view.clientHeight / 2 / viewZoomIn;
+
+    let tiles = {};
+
+    for (let x = Math.floor(viewLeft / 512); x <= Math.floor(viewRight / 512); x++) {
+        for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
+            if (tiles[x]) {
+                tiles[x].push(y);
+            } else {
+                tiles[x] = [y];
+            }
+        }
+    }
+    return tiles;
+}
+
 function render() {
     document.getElementById('map_coords').textContent = `${parseInt(viewX)}, ${parseInt(viewY)}`;
     document.getElementById('zoom_value').textContent = `${viewZoomIn / viewZoomOut}x zoom`;
 
-    let viewLeft = viewX / viewZoomOut - map_view.clientWidth / 2 / viewZoomIn;
-    let viewRight = viewX / viewZoomOut + map_view.clientWidth / 2 / viewZoomIn;
-    let viewTop = viewY / viewZoomOut - map_view.clientHeight / 2 / viewZoomIn;
-    let viewBottom = viewY / viewZoomOut + map_view.clientHeight / 2 / viewZoomIn;
+    let wantedTiles = findTilesInsideViewport();
 
     // add tiles that should be on-screen, if they dont already exist
-    for (let x = Math.floor(viewLeft / 512); x <= Math.floor(viewRight / 512); x++) {
-        for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
+    for (let x in wantedTiles) {
+        x = +x;
+        for (let y of wantedTiles[x]) {
             if (tiles[x + ' ' + y + ' ' + viewZoomOut] && !document.getElementById(`map_tile,${x},${y},${viewZoomOut}`)) {
                 let im = document.createElement('img');
                 im.src = `./data/tiles_${viewZoomOut}/r.${x}.${y}.png`;
@@ -49,12 +67,7 @@ function render() {
         let y = parseInt(tid[2]);
         let zoom = parseInt(tid[3]);
 
-        if (x < Math.floor(viewLeft / 512) ||
-            x > Math.floor(viewRight / 512) ||
-            y < Math.floor(viewTop / 512) ||
-            y > Math.floor(viewBottom / 512) ||
-            zoom != viewZoomOut
-        ) {
+        if (zoom != viewZoomOut || !wantedTiles[x] || !wantedTiles[x].includes(y)) {
             removeTiles.push(tile);
         }
     }
