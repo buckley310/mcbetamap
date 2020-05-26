@@ -123,26 +123,42 @@ function init() {
     addEventListener('resize', render);
     render();
 
-    document.getElementById('map_view').addEventListener('mousedown', e => {
-        e.preventDefault();
-        dragActive = true;
-        dragMouseStartX = e.clientX;
-        dragMouseStartY = e.clientY;
-        dragViewStartX = viewX;
-        dragViewStartY = viewY;
-    });
+    {//handle drag-panning
+        document.getElementById('map_view').addEventListener('touchstart', e => {
+            console.log(e);
+            dragActive = true;
+            dragMouseStartX = e.touches[0].clientX;
+            dragMouseStartY = e.touches[0].clientY;
+            dragViewStartX = viewX;
+            dragViewStartY = viewY;
+        });
+        document.getElementById('map_view').addEventListener('mousedown', e => {
+            e.preventDefault();
+            dragActive = true;
+            dragMouseStartX = e.clientX;
+            dragMouseStartY = e.clientY;
+            dragViewStartX = viewX;
+            dragViewStartY = viewY;
+        });
 
-    addEventListener('mouseup', e => {
-        dragActive = false;
-    });
+        addEventListener('mouseup', e => { dragActive = false; });
+        addEventListener('touchend', e => { dragActive = false; });
 
-    addEventListener('mousemove', e => {
-        if (dragActive) {
-            viewX = dragViewStartX + (dragMouseStartX - e.clientX) * viewZoomOut / viewZoomIn;
-            viewY = dragViewStartY + (dragMouseStartY - e.clientY) * viewZoomOut / viewZoomIn;
-            render();
-        }
-    });
+        addEventListener('touchmove', e => {
+            if (dragActive) {
+                viewX = dragViewStartX + (dragMouseStartX - e.touches[0].clientX) * viewZoomOut / viewZoomIn;
+                viewY = dragViewStartY + (dragMouseStartY - e.touches[0].clientY) * viewZoomOut / viewZoomIn;
+                render();
+            }
+        });
+        addEventListener('mousemove', e => {
+            if (dragActive) {
+                viewX = dragViewStartX + (dragMouseStartX - e.clientX) * viewZoomOut / viewZoomIn;
+                viewY = dragViewStartY + (dragMouseStartY - e.clientY) * viewZoomOut / viewZoomIn;
+                render();
+            }
+        });
+    }
 
     document.getElementById('gotospawn').addEventListener('click', () => {
         fly_to(0, 0);

@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <title>map</title>
     <link rel="icon" href="favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <style>
         #map_shell {
             position: fixed;
@@ -51,13 +52,21 @@
         #map_zoom>* {
             padding: 5px 20px;
         }
+
+        #map_navbar {
+            position: absolute;
+        }
+
+        #map_navbar select {
+            max-width: 50vw;
+        }
     </style>
 </head>
 
 <body>
     <div id="map_shell">
         <div id="map_view"></div>
-        <div style="position:absolute">
+        <div id="map_navbar">
             <div style="display:inline-block;">
                 <button id="prevsign">&lt;</button>
                 <select id="map_signs">
