@@ -10,7 +10,6 @@ let signs;
 let beds;
 
 let map_view = document.getElementById('map_view');
-let map_origin = document.getElementById('map_origin');
 
 let dragActive = false;
 let dragMouseStartX = 0;
@@ -23,10 +22,6 @@ let flyInterval;
 function render() {
     document.getElementById('map_coords').textContent = `${parseInt(viewX)}, ${parseInt(viewY)}`;
     document.getElementById('zoom_value').textContent = `${viewZoomIn / viewZoomOut}x zoom`;
-
-    map_origin.style.left = map_view.clientWidth / 2 - viewX * viewZoomIn / viewZoomOut + 'px';
-    map_origin.style.top = map_view.clientHeight / 2 - viewY * viewZoomIn / viewZoomOut + 'px';
-    map_origin.style.transform = `scale(${viewZoomIn})`;
 
     let viewLeft = viewX / viewZoomOut - map_view.clientWidth / 2 / viewZoomIn;
     let viewRight = viewX / viewZoomOut + map_view.clientWidth / 2 / viewZoomIn;
@@ -43,7 +38,7 @@ function render() {
                 im.src = `./data/tiles_${viewZoomOut}/r.${x}.${y}.png`;
                 im.id = `map_tile,${x},${y},${viewZoomOut}`;
                 im.className = "map_tile";
-                map_origin.appendChild(im);
+                map_view.appendChild(im);
             }
         }
     }
@@ -66,6 +61,17 @@ function render() {
         }
     }
     for (let tile of removeTiles) tile.outerHTML = '';
+
+    map_view.style.transform = `scale(${viewZoomIn})`;
+    let origin_left = map_view.clientWidth / 2 - viewX / viewZoomOut;
+    let origin_top = map_view.clientHeight / 2 - viewY / viewZoomOut;
+    for (let tile of document.getElementsByClassName('map_tile')) {
+        let tid = tile.id.split(',');
+        let x = parseInt(tid[1]);
+        let y = parseInt(tid[2]);
+        tile.style.left = origin_left + 512 * x + 'px';
+        tile.style.top = origin_top + 512 * y + 'px';
+    }
 }
 
 function fly_to(dstX, dstY) {
@@ -103,7 +109,6 @@ function fly_to(dstX, dstY) {
 }
 
 function init() {
-    document.getElementById('map_loading').outerHTML = '';
     addEventListener('resize', render);
     render();
 

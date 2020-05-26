@@ -24,11 +24,7 @@
             cursor: move;
         }
 
-        #map_origin {
-            position: absolute;
-        }
-
-        #map_origin>img {
+        #map_view>img {
             position: absolute;
             image-rendering: crisp-edges;
             image-rendering: pixelated;
@@ -60,10 +56,7 @@
 
 <body>
     <div id="map_shell">
-        <div id="map_view">
-            <div id="map_loading">LOADING...</div>
-            <div id="map_origin"></div>
-        </div>
+        <div id="map_view"></div>
         <div style="position:absolute">
             <div style="display:inline-block;">
                 <button id="prevsign">&lt;</button>
