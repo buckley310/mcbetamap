@@ -178,79 +178,79 @@ def fileWorker(job):
     pixels = img.load()
 
     for chunk in read_file(inFile):
-            _, level, _ = parse_nbt(chunk['raw'], 0)
-            level = level['Level']
+        _, level, _ = parse_nbt(chunk['raw'], 0)
+        level = level['Level']
 
-            # If this region file is storing chunks from
-            # outside of its region, we've got problems!
-            assert level['xPos'] // 32 == regX
-            assert level['zPos'] // 32 == regZ
+        # If this region file is storing chunks from
+        # outside of its region, we've got problems!
+        assert level['xPos'] // 32 == regX
+        assert level['zPos'] // 32 == regZ
 
-            # Signs are stored in level['TileEntities'].
-            # Their rotation is stored somewhere else, but I don't need that.
-            for s in level['TileEntities']:
-                if s['id'] == 'Sign':
-                    sign = {
-                        'time': chunk['time'],
-                        'x': s['x'],
-                        'z': s['z'],
-                        'text': [
-                            s['Text1'],
-                            s['Text2'],
-                            s['Text3'],
-                            s['Text4'],
-                        ]
-                    }
-                    if ''.join(sign['text']):
-                        print('sign:', sign)
-                        sign_list.append(sign)
+        # Signs are stored in level['TileEntities'].
+        # Their rotation is stored somewhere else, but I don't need that.
+        for s in level['TileEntities']:
+            if s['id'] == 'Sign':
+                sign = {
+                    'time': chunk['time'],
+                    'x': s['x'],
+                    'z': s['z'],
+                    'text': [
+                        s['Text1'],
+                        s['Text2'],
+                        s['Text3'],
+                        s['Text4'],
+                    ]
+                }
+                if ''.join(sign['text']):
+                    print('sign:', sign)
+                    sign_list.append(sign)
 
-            # beds are regular blocks (ID 0x1A), and their
-            # rotation and head/foot info stored in level['Data'].
-            if b'\x1a' in level['Blocks']:
-                chunk_beds = [
-                    {
-                        'x': level['xPos']*16 + i//2048,
-                        'z': level['zPos']*16 + i//128 % 16,
-                        'time': chunk['time'],
-                        # head (8) or foot (0) of bed:
-                        'end': (level['Data'][i >> 1] >> (i % 2 * 4)) & 8,
-                        # Bed orientation:
-                        # 'rotate':
-                        #   (level['Data'][i >> 1] >> (i % 2 * 4)) & 3,
-                    }
-                    for i, b in enumerate(level['Blocks'])
-                    if b == 0x1a
-                ]
+        # beds are regular blocks (ID 0x1A), and their
+        # rotation and head/foot info stored in level['Data'].
+        if b'\x1a' in level['Blocks']:
+            chunk_beds = [
+                {
+                    'x': level['xPos']*16 + i//2048,
+                    'z': level['zPos']*16 + i//128 % 16,
+                    'time': chunk['time'],
+                    # head (8) or foot (0) of bed:
+                    'end': (level['Data'][i >> 1] >> (i % 2 * 4)) & 8,
+                    # Bed orientation:
+                    # 'rotate':
+                    #   (level['Data'][i >> 1] >> (i % 2 * 4)) & 3,
+                }
+                for i, b in enumerate(level['Blocks'])
+                if b == 0x1a
+            ]
 
-                for bed in chunk_beds:
-                    if bed['end']:  # only count head of beds
-                        del bed['end']
-                        print('bed:', bed)
-                        bed_list.append(bed)
+            for bed in chunk_beds:
+                if bed['end']:  # only count head of beds
+                    del bed['end']
+                    print('bed:', bed)
+                    bed_list.append(bed)
 
-            for z in range(16):
-                for x in range(16):
-                    # HeightMap saves the highest block the sun reaches
-                    y = 128*z + 2048*x + level['HeightMap'][z*16+x] - 1
+        for z in range(16):
+            for x in range(16):
+                # HeightMap saves the highest block the sun reaches
+                y = 128*z + 2048*x + level['HeightMap'][z*16+x] - 1
 
-                    # snow does not block light, so HeightMap ignores it.
-                    # check if block above is snow and use that instead.
-                    if y & 0xff < 255 and level['Blocks'][y+1] == 78:
-                        y += 1
+                # snow does not block light, so HeightMap ignores it.
+                # check if block above is snow and use that instead.
+                if y & 0xff < 255 and level['Blocks'][y+1] == 78:
+                    y += 1
 
-                    b = level['Blocks'][y]
-                    if b:
-                        if b in colors:
-                            color = colors[b]
-                        else:
-                            print('no color for block:', b, ' '*8)
-                            color = (255, 0, 127, 255)
+                b = level['Blocks'][y]
+                if b:
+                    if b in colors:
+                        color = colors[b]
+                    else:
+                        print('no color for block:', b, ' '*8)
+                        color = (255, 0, 127, 255)
 
-                        pixels[
-                            level['xPos'] % 32 * 16 + x,
-                            level['zPos'] % 32 * 16 + z
-                        ] = color
+                    pixels[
+                        level['xPos'] % 32 * 16 + x,
+                        level['zPos'] % 32 * 16 + z
+                    ] = color
 
     img.save(outFile, "png")
 
