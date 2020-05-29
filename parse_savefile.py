@@ -6,8 +6,35 @@ import zlib
 import time
 import json
 import struct
+from PIL import Image
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
+
+colors = {
+    1: (200, 200, 200, 255),
+    2: (60, 180, 60, 255),
+    3: (150, 100, 50, 255),
+    4: (175, 175, 175, 255),
+    5: (192, 150, 96, 255),
+    8: (0, 0, 200, 255),
+    9: (0, 0, 200, 255),
+    10: (255, 150, 0, 255),
+    11: (255, 150, 0, 255),
+    12: (255, 255, 200, 255),
+    13: (170, 150, 170, 255),
+    15: (200, 180, 150, 255),
+    16: (80, 80, 80, 255),
+    17: (192, 150, 96, 255),
+    18: (0, 75, 0, 255),
+    24: (255, 255, 200, 255),
+    44: (175, 175, 175, 255),
+    49: (20, 20, 30, 255),
+    67: (175, 175, 175, 255),
+    78: (255, 255, 255, 255),
+    79: (128, 192, 255, 255),
+    82: (222, 222, 255, 255),
+    86: (255, 144, 0, 255),
+}
 
 TAG_End = 0
 TAG_Byte = 1
@@ -147,8 +174,10 @@ def fileWorker(job):
 
     print(f' progress: {job_id}/{jobs_total}', ' '*8, end='\r')
 
-    with open(outFile, 'wb+') as f:
-        for chunk in read_file(inFile):
+    img = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
+    pixels = img.load()
+
+    for chunk in read_file(inFile):
             _, level, _ = parse_nbt(chunk['raw'], 0)
             level = level['Level']
 
@@ -200,7 +229,6 @@ def fileWorker(job):
                         print('bed:', bed)
                         bed_list.append(bed)
 
-            surface = []
             for z in range(16):
                 for x in range(16):
                     # HeightMap saves the highest block the sun reaches
@@ -211,15 +239,20 @@ def fileWorker(job):
                     if y & 0xff < 255 and level['Blocks'][y+1] == 78:
                         y += 1
 
-                    surface.append(level['Blocks'][y])
+                    b = level['Blocks'][y]
+                    if b:
+                        if b in colors:
+                            color = colors[b]
+                        else:
+                            print('no color for block:', b, ' '*8)
+                            color = (255, 0, 127, 255)
 
-            for y in range(16):
-                f.seek(
-                    (level['xPos'] % 32)*16 +
-                    (level['zPos'] % 32)*8192 +
-                    y*512
-                )
-                f.write(bytes(surface[y*16:y*16+16]))
+                        pixels[
+                            level['xPos'] % 32 * 16 + x,
+                            level['zPos'] % 32 * 16 + z
+                        ] = color
+
+    img.save(outFile, "png")
 
     return bed_list, sign_list
 
@@ -230,7 +263,7 @@ def tilesFromWorld(world_path):
     # outputs tiles_1.json, signs.json, beds.json
     # returns nothing
 
-    for p in ['./data', './data/raw_tile_data']:
+    for p in ['./data', './data/tiles_1']:
         try:
             os.mkdir(p)
         except FileExistsError:
@@ -245,7 +278,7 @@ def tilesFromWorld(world_path):
         # input file
         map(lambda x: f'{world_path}/region/r.{x[0]}.{x[1]}.mcr', regions),
         # output file
-        map(lambda x: f'./data/raw_tile_data/r.{x[0]}.{x[1]}.dat', regions),
+        map(lambda x: f'./data/tiles_1/r.{x[0]}.{x[1]}.png', regions),
         # total count
         (len(regions),) * len(regions),
         # current item
