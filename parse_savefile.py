@@ -236,7 +236,7 @@ def fileWorker(job):
 
                 # snow does not block light, so HeightMap ignores it.
                 # check if block above is snow and use that instead.
-                if y & 0xff < 255 and level['Blocks'][y+1] == 78:
+                if y & 0x7f < 0x7f and level['Blocks'][y+1] == 78:
                     y += 1
 
                 b = level['Blocks'][y]
