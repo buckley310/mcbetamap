@@ -54,7 +54,7 @@ TAG_Long_Array = 12
 def read_file(mcr_path):
     # accepts path to file
     # reads this file
-    # returns a list of chunks (byte strings) from that file
+    # returns a list of chunks (nbt data as byte strings) from that file
 
     with open(mcr_path, 'rb') as f:
         fraw = f.read()
@@ -229,6 +229,8 @@ def fileWorker(job):
                     print('bed:', bed)
                     bed_list.append(bed)
 
+        # for every z,x coordinate in this chunk, find the surface block and
+        # its color, and add the pixel to the PIL image.
         for z in range(16):
             for x in range(16):
                 # HeightMap saves the highest block the sun reaches
