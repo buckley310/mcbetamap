@@ -9,6 +9,7 @@ import struct
 from PIL import Image
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
+from collections import namedtuple
 
 colors = {
     1: (200, 200, 200, 255),
@@ -49,6 +50,14 @@ TAG_List = 9
 TAG_Compound = 10
 TAG_Int_Array = 11
 TAG_Long_Array = 12
+
+Job = namedtuple('Job', [
+    'inFile',  # input file
+    'outFile',  # output file
+    'jobs_total',  # total count
+    'job_id',  # current item
+    'regionCoords',  # region coordinates
+])
 
 
 def read_file(mcr_path):
@@ -163,28 +172,27 @@ def parse_nbt(raw, ofs, overrideMeta=None):
     return name, ndata, ofs
 
 
-def fileWorker(job):
+def fileWorker(j):
     # accepts a "job"
     # reads input file. writes output file
     # returns ([bed1,bed2],[sign1,sign2])
 
     bed_list = []
     sign_list = []
-    inFile, outFile, jobs_total, job_id, (regX, regZ) = job
 
-    print(f' progress: {job_id}/{jobs_total}', ' '*8, end='\r')
+    print(f' progress: {j.job_id}/{j.jobs_total}', ' '*8, end='\r')
 
     img = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
     pixels = img.load()
 
-    for chunk in read_file(inFile):
+    for chunk in read_file(j.inFile):
         _, level, _ = parse_nbt(chunk['raw'], 0)
         level = level['Level']
 
         # If this region file is storing chunks from
         # outside of its region, we've got problems!
-        assert level['xPos'] // 32 == regX
-        assert level['zPos'] // 32 == regZ
+        assert level['xPos'] // 32 == j.regionCoords[0]
+        assert level['zPos'] // 32 == j.regionCoords[1]
 
         # Signs are stored in level['TileEntities'].
         # Their rotation is stored somewhere else, but I don't need that.
@@ -254,7 +262,7 @@ def fileWorker(job):
                         level['zPos'] % 32 * 16 + z
                     ] = color
 
-    img.save(outFile, "png")
+    img.save(j.outFile, "png")
 
     return bed_list, sign_list
 
@@ -276,18 +284,15 @@ def tilesFromWorld(world_path):
         for x in os.listdir(world_path+'/region')
     ]
 
-    job_list = list(zip(
-        # input file
-        map(lambda x: f'{world_path}/region/r.{x[0]}.{x[1]}.mcr', regions),
-        # output file
-        map(lambda x: f'./data/tiles_1/r.{x[0]}.{x[1]}.png', regions),
-        # total count
-        (len(regions),) * len(regions),
-        # current item
-        range(len(regions)),
-        # region list
-        regions,
-    ))
+    job_list = [
+        Job(*x) for x in zip(
+            map(lambda x: f'{world_path}/region/r.{x[0]}.{x[1]}.mcr', regions),
+            map(lambda x: f'./data/tiles_1/r.{x[0]}.{x[1]}.png', regions),
+            (len(regions),) * len(regions),
+            range(len(regions)),
+            regions,
+        )
+    ]
 
     with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         job_results = pool.map(fileWorker, job_list)

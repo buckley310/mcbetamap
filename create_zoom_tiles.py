@@ -5,6 +5,15 @@ import json
 from PIL import Image
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
+from collections import namedtuple
+
+Job = namedtuple('Job', [
+    'tile',  # tile to generate
+    'srcTiles',  # source tiles
+    'zoom',  # current zoom level
+    'current',  # current item
+    'total',  # total items
+])
 
 
 def squashCoord(x):
@@ -23,17 +32,16 @@ def expandCoord(x):
     )
 
 
-def worker(job):
-    tile, srcTileList, zoom, current, total = job
-    print(f' progress {current}/{total}', ' '*8, end='\r')
+def worker(j):
+    print(f' progress {j.current}/{j.total}', ' '*8, end='\r')
     dst = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
-    for srcX, srcY, dstX, dstY in expandCoord(tile):
-        if [srcX, srcY] in srcTileList:
-            src = Image.open(f'./data/tiles_{zoom//2}/r.{srcX}.{srcY}.png')
+    for srcX, srcY, dstX, dstY in expandCoord(j.tile):
+        if [srcX, srcY] in j.srcTiles:
+            src = Image.open(f'./data/tiles_{j.zoom//2}/r.{srcX}.{srcY}.png')
             src = src.resize((256, 256), resample=Image.NEAREST)
             dst.paste(src, (dstX, dstY))
 
-    dst.save(f'./data/tiles_{zoom}/r.{tile[0]}.{tile[1]}.png', 'png')
+    dst.save(f'./data/tiles_{j.zoom}/r.{j.tile[0]}.{j.tile[1]}.png', 'png')
 
 
 for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
@@ -52,18 +60,15 @@ for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
         except FileExistsError:
             pass
 
-        jobs = list(zip(
-            # tile to generate
-            outTileList,
-            # source tiles
-            (intTileList,) * len(outTileList),
-            # current zoom level
-            (zoom,) * len(outTileList),
-            # current item
-            range(len(outTileList)),
-            # total items
-            (len(outTileList),) * len(outTileList),
-        ))
+        jobs = [
+            Job(*x) for x in zip(
+                outTileList,
+                (intTileList,) * len(outTileList),
+                (zoom,) * len(outTileList),
+                range(len(outTileList)),
+                (len(outTileList),) * len(outTileList),
+            )
+        ]
 
         list(pool.map(worker, jobs))
 
