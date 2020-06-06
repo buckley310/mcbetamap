@@ -25,14 +25,14 @@ function findTilesInsideViewport() {
     let viewRight = viewX / viewZoomOut + map_view.clientWidth / 2 / viewZoomIn;
     let viewBottom = viewY / viewZoomOut + map_view.clientHeight / 2 / viewZoomIn;
 
-    let tiles = {};
+    let vtiles = {};
 
     for (let x = Math.floor(viewLeft / 512); x <= Math.floor(viewRight / 512); x++) {
         for (let y = Math.floor(viewTop / 512); y <= Math.floor(viewBottom / 512); y++) {
-            tiles[`${x},${y}`] = [x, y];
+            vtiles[`${x},${y}`] = [x, y];
         }
     }
-    return tiles;
+    return vtiles;
 }
 
 function render() {
