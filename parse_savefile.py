@@ -295,14 +295,12 @@ def tilesFromWorld(world_path):
 
     bed_list, sign_list = map(lambda x: sum(x, []), zip(*job_results))
 
-    with open('./data/tiles_1.json', 'w') as f:
-        f.write(json.dumps(regions))
-
-    with open('./data/signs.json', 'w') as f:
-        f.write(json.dumps(sign_list))
-
-    with open('./data/beds.json', 'w') as f:
-        f.write(json.dumps(bed_list))
+    with open('./data/data.json', 'w') as f:
+        f.write(json.dumps({
+            'beds': bed_list,
+            'signs': sign_list,
+            'tiles': {1: regions},
+        }))
 
 
 if __name__ == "__main__":

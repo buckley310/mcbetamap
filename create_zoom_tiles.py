@@ -40,9 +40,12 @@ for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
     with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         print('\nProcessing Zoom Level', zoom)
 
-        with open(f'./data/tiles_{zoom//2}.json') as f:
-            intTileList = json.loads(f.read())
+        with open('./data/data.json') as f:
+            mapData = json.loads(f.read())
+
+        intTileList = mapData['tiles'][str(zoom//2)]
         outTileList = list(set(map(squashCoord, intTileList)))
+        mapData['tiles'][str(zoom)] = outTileList
 
         try:
             os.mkdir(f'./data/tiles_{zoom}')
@@ -62,6 +65,7 @@ for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
 
         list(pool.map(worker, jobs))
 
-        with open(f'./data/tiles_{zoom}.json', 'w') as f:
-            f.write(json.dumps(outTileList))
+        with open('./data/data.json', 'w') as f:
+            f.write(json.dumps(mapData))
+
 print('')
