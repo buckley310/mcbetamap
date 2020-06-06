@@ -44,12 +44,12 @@ def worker(j):
     dst.save(f'./data/tiles_{j.zoom}/r.{j.tile[0]}.{j.tile[1]}.png', 'png')
 
 
+with open('./data/data.json') as f:
+    mapData = json.loads(f.read())
+
 for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
     with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         print('\nProcessing Zoom Level', zoom)
-
-        with open('./data/data.json') as f:
-            mapData = json.loads(f.read())
 
         intTileList = mapData['tiles'][str(zoom//2)]
         outTileList = list(set(map(squashCoord, intTileList)))
@@ -72,7 +72,9 @@ for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
 
         list(pool.map(worker, jobs))
 
-        with open('./data/data.json', 'w') as f:
-            f.write(json.dumps(mapData))
+        mapData = json.loads(json.dumps(mapData))  # TODO: Remove this line
+
+with open('./data/data.json', 'w') as f:
+    f.write(json.dumps(mapData))
 
 print('')
