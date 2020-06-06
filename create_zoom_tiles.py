@@ -24,11 +24,11 @@ def expandCoord(x):
 
 
 def worker(job):
-    tile, zoom, current, total = job
+    tile, srcTileList, zoom, current, total = job
     print(f' progress {current}/{total}', ' '*8, end='\r')
     dst = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
     for srcX, srcY, dstX, dstY in expandCoord(tile):
-        if [srcX, srcY] in intTileList:
+        if [srcX, srcY] in srcTileList:
             src = Image.open(f'./data/tiles_{zoom//2}/r.{srcX}.{srcY}.png')
             src = src.resize((256, 256), resample=Image.NEAREST)
             dst.paste(src, (dstX, dstY))
@@ -55,6 +55,8 @@ for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
         jobs = list(zip(
             # tile to generate
             outTileList,
+            # source tiles
+            (intTileList,) * len(outTileList),
             # current zoom level
             (zoom,) * len(outTileList),
             # current item
