@@ -44,37 +44,42 @@ def worker(j):
     dst.save(f'./data/tiles_{j.zoom}/r.{j.tile[0]}.{j.tile[1]}.png', 'png')
 
 
-with open('./data/data.json') as f:
-    mapData = json.loads(f.read())
+def main():
+    with open('./data/data.json') as f:
+        mapData = json.loads(f.read())
 
-for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
-    with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
-        print('\nProcessing Zoom Level', zoom)
+    for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
+        with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
+            print('\nProcessing Zoom Level', zoom)
 
-        intTileList = mapData['tiles'][str(zoom//2)]
-        outTileList = list(set(map(squashCoord, intTileList)))
-        mapData['tiles'][str(zoom)] = outTileList
+            intTileList = mapData['tiles'][str(zoom//2)]
+            outTileList = list(set(map(squashCoord, intTileList)))
+            mapData['tiles'][str(zoom)] = outTileList
 
-        try:
-            os.mkdir(f'./data/tiles_{zoom}')
-        except FileExistsError:
-            pass
+            try:
+                os.mkdir(f'./data/tiles_{zoom}')
+            except FileExistsError:
+                pass
 
-        jobs = [
-            Job(*x) for x in zip(
-                outTileList,
-                (intTileList,) * len(outTileList),
-                (zoom,) * len(outTileList),
-                range(len(outTileList)),
-                (len(outTileList),) * len(outTileList),
-            )
-        ]
+            jobs = [
+                Job(*x) for x in zip(
+                    outTileList,
+                    (intTileList,) * len(outTileList),
+                    (zoom,) * len(outTileList),
+                    range(len(outTileList)),
+                    (len(outTileList),) * len(outTileList),
+                )
+            ]
 
-        list(pool.map(worker, jobs))
+            list(pool.map(worker, jobs))
 
-        mapData = json.loads(json.dumps(mapData))  # TODO: Remove this line
+            mapData = json.loads(json.dumps(mapData))  # TODO: Remove this line
 
-with open('./data/data.json', 'w') as f:
-    f.write(json.dumps(mapData))
+    with open('./data/data.json', 'w') as f:
+        f.write(json.dumps(mapData))
 
-print('')
+    print('')
+
+
+if __name__ == "__main__":
+    main()
