@@ -26,3 +26,11 @@ python ./create_zoom_tiles.py
 The world path may be in the form `"~/.minecraft/saves/testworld/"` on Linux,
 
 or `"C:\Users\me\AppData\Roaming\.minecraft\saves\testworld\"` on Windows.
+
+---
+
+To view the map, run the following command:
+```
+python -m http.server 8000
+```
+and navigate to http://localhost:8000/map.html in a web browser.
