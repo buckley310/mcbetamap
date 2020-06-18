@@ -46,7 +46,15 @@ function render() {
         let x = wantedTiles[i][0];
         let y = wantedTiles[i][1];
         if (tiles[`${x} ${y} ${viewZoomOut}`] && !document.getElementById(`map_tile,${x},${y},${viewZoomOut}`)) {
+
+            let ph = document.createElement('img');
+            ph.src = './tile_placeholder.png';
+            ph.id = `map_tile,${x},${y},${viewZoomOut},placeholder`;
+            ph.className = "map_tile";
+            map_view.appendChild(ph);
+
             let im = document.createElement('img');
+            im.addEventListener('load', () => { ph.outerHTML = ''; });
             im.src = `./data/tiles_${viewZoomOut}/r.${x}.${y}.png`;
             im.id = `map_tile,${x},${y},${viewZoomOut}`;
             im.className = "map_tile";
