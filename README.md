@@ -33,4 +33,4 @@ To view the map, run the following command:
 ```
 python -m http.server 8000
 ```
-and navigate to http://localhost:8000/map.html in a web browser.
+and navigate to http://localhost:8000 in a web browser.

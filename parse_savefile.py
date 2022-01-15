@@ -270,10 +270,10 @@ def fileWorker(j):
 def tilesFromWorld(world_path):
     # accepts path to world folder
     # spawns file workers
-    # outputs tiles_1.json, signs.json, beds.json
+    # outputs ./data/tiles_0 and ./data/data.json
     # returns nothing
 
-    for p in ['./data', './data/tiles_1']:
+    for p in ['./data', './data/tiles_0']:
         try:
             os.mkdir(p)
         except FileExistsError:
@@ -287,7 +287,7 @@ def tilesFromWorld(world_path):
     job_list = [
         Job(*x) for x in zip(
             map(lambda x: f'{world_path}/region/r.{x[0]}.{x[1]}.mcr', regions),
-            map(lambda x: f'./data/tiles_1/r.{x[0]}.{x[1]}.png', regions),
+            map(lambda x: f'./data/tiles_0/r.{x[0]}.{x[1]}.png', regions),
             (len(regions),) * len(regions),
             range(len(regions)),
             regions,
@@ -304,7 +304,7 @@ def tilesFromWorld(world_path):
         f.write(json.dumps({
             'beds': bed_list,
             'signs': sign_list,
-            'tiles': {1: regions},
+            'tiles': {0: regions},
         }))
 
 

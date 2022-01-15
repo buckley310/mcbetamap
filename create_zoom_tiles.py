@@ -37,7 +37,7 @@ def worker(j):
     dst = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
     for srcX, srcY, dstX, dstY in expandCoord(j.tile):
         if [srcX, srcY] in j.srcTiles:
-            src = Image.open(f'./data/tiles_{j.zoom//2}/r.{srcX}.{srcY}.png')
+            src = Image.open(f'./data/tiles_{j.zoom+1}/r.{srcX}.{srcY}.png')
             src = src.resize((256, 256), resample=Image.NEAREST)
             dst.paste(src, (dstX, dstY))
 
@@ -48,11 +48,11 @@ def main():
     with open('./data/data.json') as f:
         mapData = json.loads(f.read())
 
-    for zoom in [2, 4, 8, 16, 32, 64, 128, 256]:
+    for zoom in range(-1, -8, -1):
         with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
             print('\nProcessing Zoom Level', zoom)
 
-            intTileList = mapData['tiles'][str(zoom//2)]
+            intTileList = mapData['tiles'][str(zoom+1)]
             outTileList = list(set(map(squashCoord, intTileList)))
             mapData['tiles'][str(zoom)] = outTileList
 
