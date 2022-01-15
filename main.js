@@ -1,12 +1,21 @@
-let map = L.map('map', { crs: L.CRS.Simple }).setView([0, 0], 0);
-addEventListener('resize', () => map.invalidateSize());
+(function () {
 
-L.control.scale().addTo(map);
+    let initMap = function () {
+        let map = L.map('map', { crs: L.CRS.Simple }).setView([0, 0], 0);
+        addEventListener('resize', () => map.invalidateSize());
 
-L.tileLayer('./data/tiles_{z}/r.{x}.{y}.png', {
-    maxNativeZoom: 0,
-    maxZoom: 4,
-    minNativeZoom: -7,
-    minZoom: -7,
-    tileSize: 512,
-}).addTo(map);
+        L.tileLayer('./data/tiles_{z}/r.{x}.{y}.png', {
+            tileSize: 512,
+            maxNativeZoom: 0,
+            maxZoom: 4,
+            minNativeZoom: -7,
+            minZoom: -7,
+        }).addTo(map);
+
+        L.control.scale().addTo(map);
+        L.control.spawn().addTo(map);
+    };
+
+    initMap();
+
+})();
