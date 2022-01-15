@@ -16,6 +16,12 @@
         L.control.signs({ signs: landmarks.signs }).addTo(map);
         L.control.beds({ beds: landmarks.beds }).addTo(map);
         L.control.spawn().addTo(map);
+
+        for (let b of landmarks.beds)
+            L.marker([-b.z, b.x]).addTo(map)._icon.classList.add("huechange");
+
+        for (let s of landmarks.signs)
+            L.marker([-s.z, s.x], { title: s.text }).addTo(map);
     };
 
     addEventListener('load', function () {
