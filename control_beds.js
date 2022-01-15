@@ -3,7 +3,7 @@ L.control.beds = function (opts) {
     let ctrl = L.Control.extend({
         onAdd: map => {
             var c = L.DomUtil.create('select');
-            c.innerHTML='<option>Select a bed...</option>';
+            c.innerHTML = '<option>Select a bed...</option>';
 
             L.DomEvent.on(c, 'change', e => {
                 let coord = e.target.value.split(',');
