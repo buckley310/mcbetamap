@@ -13,6 +13,7 @@
         }).addTo(map);
 
         L.control.scale().addTo(map);
+        L.control.signs({ signs: landmarks.signs }).addTo(map);
         L.control.beds({ beds: landmarks.beds }).addTo(map);
         L.control.spawn().addTo(map);
     };
