@@ -1,6 +1,6 @@
 (function () {
 
-    let initMap = function () {
+    let initMap = function (landmarks) {
         let map = L.map('map', { crs: L.CRS.Simple }).setView([0, 0], 0);
         addEventListener('resize', () => map.invalidateSize());
 
@@ -16,6 +16,10 @@
         L.control.spawn().addTo(map);
     };
 
-    initMap();
+    addEventListener('load', function () {
+        fetch('./data/data.json')
+            .then(r => r.json())
+            .then(initMap);
+    });
 
 })();
