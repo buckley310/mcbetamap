@@ -37,15 +37,15 @@ def worker(j):
     dst = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
     for srcX, srcY, dstX, dstY in expandCoord(j.tile):
         if [srcX, srcY] in j.srcTiles:
-            src = Image.open(f'./data/tiles_{j.zoom+1}/r.{srcX}.{srcY}.png')
+            src = Image.open(f'./static/data/tiles_{j.zoom+1}/r.{srcX}.{srcY}.png')
             src = src.resize((256, 256), resample=Image.NEAREST)
             dst.paste(src, (dstX, dstY))
 
-    dst.save(f'./data/tiles_{j.zoom}/r.{j.tile[0]}.{j.tile[1]}.png', 'png')
+    dst.save(f'./static/data/tiles_{j.zoom}/r.{j.tile[0]}.{j.tile[1]}.png', 'png')
 
 
 def main():
-    with open('./data/data.json') as f:
+    with open('./static/data/data.json') as f:
         mapData = json.loads(f.read())
 
     for zoom in range(-1, -8, -1):
@@ -57,7 +57,7 @@ def main():
             mapData['tiles'][str(zoom)] = outTileList
 
             try:
-                os.mkdir(f'./data/tiles_{zoom}')
+                os.mkdir(f'./static/data/tiles_{zoom}')
             except FileExistsError:
                 pass
 
@@ -75,7 +75,7 @@ def main():
 
             mapData = json.loads(json.dumps(mapData))  # TODO: Remove this line
 
-    with open('./data/data.json', 'w') as f:
+    with open('./static/data/data.json', 'w') as f:
         f.write(json.dumps(mapData))
 
     print('')

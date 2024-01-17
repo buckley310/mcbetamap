@@ -37,7 +37,7 @@ or `"C:\Users\me\AppData\Roaming\.minecraft\saves\testworld\"` on Windows.
 To view the map, run the following command:
 
 ```
-python -m http.server 8000
+python -m http.server 8000 -d ./static
 ```
 
 and navigate to http://localhost:8000 in a web browser.
