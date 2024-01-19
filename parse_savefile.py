@@ -79,13 +79,16 @@ TAG_Compound = 10
 TAG_Int_Array = 11
 TAG_Long_Array = 12
 
-Job = namedtuple('Job', [
-    'inFile',  # input file
-    'outFile',  # output file
-    'jobs_total',  # total count
-    'job_id',  # current item
-    'regionCoords',  # region coordinates
-])
+Job = namedtuple(
+    "Job",
+    [
+        "inFile",  # input file
+        "outFile",  # output file
+        "jobs_total",  # total count
+        "job_id",  # current item
+        "regionCoords",  # region coordinates
+    ],
+)
 
 
 def read_file(mcr_path):
@@ -93,29 +96,34 @@ def read_file(mcr_path):
     # reads this file
     # returns a list of chunks (nbt data as byte strings) from that file
 
-    with open(mcr_path, 'rb') as f:
+    with open(mcr_path, "rb") as f:
         fraw = f.read()
 
-    chunks = list(filter(lambda c: c['ofs'], [
-        {
-            # offset from start of file
-            'ofs': 4096 * ((fraw[i] << 16)+(fraw[i+1] << 8)+fraw[i+2]),
-            #
-            # how many sectors the chunk occupies in the file.
-            # Dont need this. Each chunk data is preceded by a length field
-            # 'sectors': fraw[i+3],
-            #
-            # chunk last modified time
-            'time': struct.unpack('>I', fraw[i+4096:i+4100])[0],
-        }
-        for i in range(0, 4096, 4)
-    ]))
+    chunks = list(
+        filter(
+            lambda c: c["ofs"],
+            [
+                {
+                    # offset from start of file
+                    "ofs": 4096 * ((fraw[i] << 16) + (fraw[i + 1] << 8) + fraw[i + 2]),
+                    #
+                    # how many sectors the chunk occupies in the file.
+                    # Dont need this. Each chunk data is preceded by a length field
+                    # 'sectors': fraw[i+3],
+                    #
+                    # chunk last modified time
+                    "time": struct.unpack(">I", fraw[i + 4096 : i + 4100])[0],
+                }
+                for i in range(0, 4096, 4)
+            ],
+        )
+    )
 
     for c in chunks:
-        assert 2 == fraw[c['ofs']+4]  # fail if compression is not Zlib
-        size = struct.unpack('>I', fraw[c['ofs']:c['ofs']+4])[0]
-        c['raw'] = zlib.decompress(fraw[c['ofs']+5:c['ofs']+5+size])
-        del c['ofs']
+        assert 2 == fraw[c["ofs"] + 4]  # fail if compression is not Zlib
+        size = struct.unpack(">I", fraw[c["ofs"] : c["ofs"] + 4])[0]
+        c["raw"] = zlib.decompress(fraw[c["ofs"] + 5 : c["ofs"] + 5 + size])
+        del c["ofs"]
 
     return chunks
 
@@ -128,57 +136,57 @@ def parse_nbt(raw, ofs, overrideMeta=None):
         typeID = raw[ofs]
         ofs += 1
 
-        namelen = struct.unpack('>H', raw[ofs:ofs+2])[0]
+        namelen = struct.unpack(">H", raw[ofs : ofs + 2])[0]
         ofs += 2
 
-        name = raw[ofs:ofs+namelen].decode('utf8')
+        name = raw[ofs : ofs + namelen].decode("utf8")
         ofs += namelen
     else:
         typeID = overrideMeta
-        name = 'UNNAMED'
+        name = "UNNAMED"
 
     if typeID == TAG_Byte:
-        ndata = struct.unpack('>b', raw[ofs:ofs+1])[0]
+        ndata = struct.unpack(">b", raw[ofs : ofs + 1])[0]
         ofs += 1
 
     elif typeID == TAG_Short:
-        ndata = struct.unpack('>h', raw[ofs:ofs+2])[0]
+        ndata = struct.unpack(">h", raw[ofs : ofs + 2])[0]
         ofs += 2
 
     elif typeID == TAG_Int:
-        ndata = struct.unpack('>i', raw[ofs:ofs+4])[0]
+        ndata = struct.unpack(">i", raw[ofs : ofs + 4])[0]
         ofs += 4
 
     elif typeID == TAG_Long:
-        ndata = struct.unpack('>q', raw[ofs:ofs+8])[0]
+        ndata = struct.unpack(">q", raw[ofs : ofs + 8])[0]
         ofs += 8
 
     elif typeID == TAG_Float:
-        ndata = struct.unpack('>f', raw[ofs:ofs+4])[0]
+        ndata = struct.unpack(">f", raw[ofs : ofs + 4])[0]
         ofs += 4
 
     elif typeID == TAG_Double:
-        ndata = struct.unpack('>d', raw[ofs:ofs+8])[0]
+        ndata = struct.unpack(">d", raw[ofs : ofs + 8])[0]
         ofs += 8
 
     elif typeID == TAG_Byte_Array:
-        arraysize = struct.unpack('>i', raw[ofs:ofs+4])[0]
+        arraysize = struct.unpack(">i", raw[ofs : ofs + 4])[0]
         assert arraysize >= 0
         ofs += 4
-        ndata = raw[ofs:ofs+arraysize]
+        ndata = raw[ofs : ofs + arraysize]
         ofs += arraysize
 
     elif typeID == TAG_String:
-        stringsize = struct.unpack('>h', raw[ofs:ofs+2])[0]
+        stringsize = struct.unpack(">h", raw[ofs : ofs + 2])[0]
         assert stringsize >= 0
         ofs += 2
-        ndata = raw[ofs:ofs+stringsize].decode('utf8')
+        ndata = raw[ofs : ofs + stringsize].decode("utf8")
         ofs += stringsize
 
     elif typeID == TAG_List:
         listContentsType = raw[ofs]
         ofs += 1
-        count = struct.unpack('>i', raw[ofs:ofs+4])[0]
+        count = struct.unpack(">i", raw[ofs : ofs + 4])[0]
         assert count >= 0
         ofs += 4
         ndata = []
@@ -208,61 +216,61 @@ def fileWorker(j):
     bed_list = []
     sign_list = []
 
-    print(f' progress: {j.job_id}/{j.jobs_total}', ' '*8, end='\r')
+    print(f" progress: {j.job_id}/{j.jobs_total}", " " * 8, end="\r")
 
-    img = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
+    img = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
     pixels = img.load()
 
     for chunk in read_file(j.inFile):
-        _, level, _ = parse_nbt(chunk['raw'], 0)
-        level = level['Level']
+        _, level, _ = parse_nbt(chunk["raw"], 0)
+        level = level["Level"]
 
         # If this region file is storing chunks from
         # outside of its region, we've got problems!
-        assert level['xPos'] // 32 == j.regionCoords[0]
-        assert level['zPos'] // 32 == j.regionCoords[1]
+        assert level["xPos"] // 32 == j.regionCoords[0]
+        assert level["zPos"] // 32 == j.regionCoords[1]
 
         # Signs are stored in level['TileEntities'].
         # Their rotation is stored somewhere else, but I don't need that.
-        for s in level['TileEntities']:
-            if s['id'] == 'Sign':
+        for s in level["TileEntities"]:
+            if s["id"] == "Sign":
                 sign = {
-                    'time': chunk['time'],
-                    'x': s['x'],
-                    'z': s['z'],
-                    'text': [
-                        s['Text1'],
-                        s['Text2'],
-                        s['Text3'],
-                        s['Text4'],
-                    ]
+                    "time": chunk["time"],
+                    "x": s["x"],
+                    "z": s["z"],
+                    "text": [
+                        s["Text1"],
+                        s["Text2"],
+                        s["Text3"],
+                        s["Text4"],
+                    ],
                 }
-                if ''.join(sign['text']):
-                    print('sign:', sign)
+                if "".join(sign["text"]):
+                    print("sign:", sign)
                     sign_list.append(sign)
 
         # beds are regular blocks (ID 0x1A), and their
         # rotation and head/foot info stored in level['Data'].
-        if b'\x1a' in level['Blocks']:
+        if b"\x1a" in level["Blocks"]:
             chunk_beds = [
                 {
-                    'x': level['xPos']*16 + i//2048,
-                    'z': level['zPos']*16 + i//128 % 16,
-                    'time': chunk['time'],
+                    "x": level["xPos"] * 16 + i // 2048,
+                    "z": level["zPos"] * 16 + i // 128 % 16,
+                    "time": chunk["time"],
                     # head (8) or foot (0) of bed:
-                    'end': (level['Data'][i >> 1] >> (i % 2 * 4)) & 8,
+                    "end": (level["Data"][i >> 1] >> (i % 2 * 4)) & 8,
                     # Bed orientation:
                     # 'rotate':
                     #   (level['Data'][i >> 1] >> (i % 2 * 4)) & 3,
                 }
-                for i, b in enumerate(level['Blocks'])
-                if b == 0x1a
+                for i, b in enumerate(level["Blocks"])
+                if b == 0x1A
             ]
 
             for bed in chunk_beds:
-                if bed['end']:  # only count head of beds
-                    del bed['end']
-                    print('bed:', bed)
+                if bed["end"]:  # only count head of beds
+                    del bed["end"]
+                    print("bed:", bed)
                     bed_list.append(bed)
 
         # for every z,x coordinate in this chunk, find the surface block and
@@ -270,24 +278,23 @@ def fileWorker(j):
         for z in range(16):
             for x in range(16):
                 # HeightMap saves the highest block the sun reaches
-                y = 128*z + 2048*x + level['HeightMap'][z*16+x] - 1
+                y = 128 * z + 2048 * x + level["HeightMap"][z * 16 + x] - 1
 
                 # snow does not block light, so HeightMap ignores it.
                 # check if block above is snow and use that instead.
-                while y % 128 < 127 and level['Blocks'][y+1]:
+                while y % 128 < 127 and level["Blocks"][y + 1]:
                     y += 1
 
-                b = level['Blocks'][y]
+                b = level["Blocks"][y]
                 if b:
                     if b in colors:
                         color = colors[b]
                     else:
-                        print('no color for block:', b, ' '*8, end='\n'*4)
+                        print("no color for block:", b, " " * 8, end="\n" * 4)
                         color = (255, 0, 127, 255)
 
                     pixels[
-                        level['xPos'] % 32 * 16 + x,
-                        level['zPos'] % 32 * 16 + z
+                        level["xPos"] % 32 * 16 + x, level["zPos"] % 32 * 16 + z
                     ] = color
 
     img.save(j.outFile, "png")
@@ -301,21 +308,21 @@ def tilesFromWorld(world_path):
     # outputs ./static/data/tiles_0 and ./static/data/data.json
     # returns nothing
 
-    for p in ['./static/data', './static/data/tiles_0']:
+    for p in ["./static/data", "./static/data/tiles_0"]:
         try:
             os.mkdir(p)
         except FileExistsError:
             pass
 
     regions = [
-        list(map(int, x.split('.')[1:3]))
-        for x in os.listdir(world_path+'/region')
+        list(map(int, x.split(".")[1:3])) for x in os.listdir(world_path + "/region")
     ]
 
     job_list = [
-        Job(*x) for x in zip(
-            map(lambda x: f'{world_path}/region/r.{x[0]}.{x[1]}.mcr', regions),
-            map(lambda x: f'./static/data/tiles_0/r.{x[0]}.{x[1]}.png', regions),
+        Job(*x)
+        for x in zip(
+            map(lambda x: f"{world_path}/region/r.{x[0]}.{x[1]}.mcr", regions),
+            map(lambda x: f"./static/data/tiles_0/r.{x[0]}.{x[1]}.png", regions),
             (len(regions),) * len(regions),
             range(len(regions)),
             regions,
@@ -324,16 +331,20 @@ def tilesFromWorld(world_path):
 
     with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
         job_results = pool.map(fileWorker, job_list)
-    print('')
+    print("")
 
     bed_list, sign_list = map(lambda x: sum(x, []), zip(*job_results))
 
-    with open('./static/data/data.json', 'w') as f:
-        f.write(json.dumps({
-            'beds': bed_list,
-            'signs': sign_list,
-            'tiles': {0: regions},
-        }))
+    with open("./static/data/data.json", "w") as f:
+        f.write(
+            json.dumps(
+                {
+                    "beds": bed_list,
+                    "signs": sign_list,
+                    "tiles": {0: regions},
+                }
+            )
+        )
 
 
 if __name__ == "__main__":
