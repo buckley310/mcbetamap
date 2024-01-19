@@ -11,6 +11,7 @@ from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
 from collections import namedtuple
 
+# fmt: off
 colors = {
     1:  (200, 200, 200, 255),
     2:  (80,  140, 50,  255),
@@ -39,7 +40,7 @@ colors = {
     37: (255, 255, 50,  255),
     38: (255, 0,   0,   255),
     39: (200, 150, 120, 255),
-    40: (180, 50,  50, 255),
+    40: (180, 50,  50,  255),
     44: (200, 200, 200, 255),  # copy of 1
     48: (115, 127, 115, 255),
     49: (20,  20,  30,  255),
@@ -62,6 +63,7 @@ colors = {
     86: (255, 144, 0,   255),
     91: (255, 144, 0,   255),  # copy of 86
 }
+# fmt: on
 
 TAG_End = 0
 TAG_Byte = 1
@@ -98,11 +100,11 @@ def read_file(mcr_path):
         {
             # offset from start of file
             'ofs': 4096 * ((fraw[i] << 16)+(fraw[i+1] << 8)+fraw[i+2]),
-
+            #
             # how many sectors the chunk occupies in the file.
             # Dont need this. Each chunk data is preceded by a length field
             # 'sectors': fraw[i+3],
-
+            #
             # chunk last modified time
             'time': struct.unpack('>I', fraw[i+4096:i+4100])[0],
         }
