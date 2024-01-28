@@ -16,6 +16,7 @@
 		L.control.beds({ beds: landmarks.beds }).addTo(map);
 		L.control.spawn().addTo(map);
 		L.control.coords({ position: "bottomleft" }).addTo(map);
+		L.control.projecthome({ position: "bottomright" }).addTo(map);
 
 		for (let b of landmarks.beds)
 			L.marker([-b.z, b.x]).addTo(map)._icon.classList.add("huechange");
