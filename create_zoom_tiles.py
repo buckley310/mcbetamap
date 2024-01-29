@@ -55,8 +55,8 @@ def main():
         with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
             print("\nProcessing Zoom Level", zoom)
 
-            intTileList = mapData["tiles"][str(zoom + 1)]
-            outTileList = list(set(map(squashCoord, intTileList)))
+            inTileList = mapData["tiles"][str(zoom + 1)]
+            outTileList = list(set(map(squashCoord, inTileList)))
             mapData["tiles"][str(zoom)] = outTileList
 
             try:
@@ -68,7 +68,7 @@ def main():
                 Job(*x)
                 for x in zip(
                     outTileList,
-                    (intTileList,) * len(outTileList),
+                    (inTileList,) * len(outTileList),
                     (zoom,) * len(outTileList),
                     range(len(outTileList)),
                     (len(outTileList),) * len(outTileList),
