@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import os
-import math
-import json
 from PIL import Image
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
@@ -48,16 +46,16 @@ def worker(j):
 
 
 def main():
-    with open("./static/data/data.json") as f:
-        mapData = json.loads(f.read())
-
     for zoom in range(-1, -8, -1):
         with ProcessPoolExecutor(max_workers=cpu_count()) as pool:
             print("\nProcessing Zoom Level", zoom)
 
-            inTileList = mapData["tiles"][str(zoom + 1)]
+            inTileList = [
+                list(map(int, x.split(".")[1:3]))
+                for x in os.listdir(f"./static/data/tiles_{zoom+1}")
+            ]
+
             outTileList = list(set(map(squashCoord, inTileList)))
-            mapData["tiles"][str(zoom)] = outTileList
 
             try:
                 os.mkdir(f"./static/data/tiles_{zoom}")
@@ -76,11 +74,6 @@ def main():
             ]
 
             list(pool.map(worker, jobs))
-
-            mapData = json.loads(json.dumps(mapData))  # TODO: Remove this line
-
-    with open("./static/data/data.json", "w") as f:
-        f.write(json.dumps(mapData))
 
     print("")
 

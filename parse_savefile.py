@@ -3,7 +3,6 @@
 import os
 import sys
 import zlib
-import time
 import json
 import struct
 from PIL import Image
@@ -341,7 +340,6 @@ def tilesFromWorld(world_path):
                 {
                     "beds": bed_list,
                     "signs": sign_list,
-                    "tiles": {0: regions},
                 }
             )
         )
